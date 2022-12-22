@@ -71,7 +71,7 @@ async function authorize() {
  * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-async function listMajors(auth: any) {
+async function getEmployeeThatHaveABirthday(auth: any): Promise<{code: string, name: string}[]> {
   const sheets = google.sheets({ version: "v4", auth });
   //   const res = await sheets.spreadsheets.values.get({
   //     spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
@@ -81,16 +81,31 @@ async function listMajors(auth: any) {
     spreadsheetId: "1jxzMQBfLAFOsu2Y_0tChpiSNfSsL7sc5jIR41ghdPQQ",
     range: "M26:N28",
   });
+
+  //  TODO: Xu ly sheets va lay 1 mang employee theo dinh dang object {name, code}
+  const result: {code: string, name: string}[] = [];
+
   const rows = res.data.values;
   if (!rows || rows.length === 0) {
     console.log("No data found.");
-    return;
+    throw new Error('error')
   }
   console.log("Name, Major:");
-  rows.forEach((row: any) => {
+  rows.forEach((row: any[]) => {
+    const [code, name, birthday] = row
+    const day = (new Date(birthday))
     // Print columns A and E, which correspond to indices 0 and 4.
     console.log(`${row[0]}, ${row[1]}`);
+    //  if satified
+    result.push({
+      name, code
+    })
   });
+
+  return result
 }
 
-authorize().then(listMajors).catch(console.error);
+export async function getBirthdayCustomerCode(): Promise<{code: string, name: string}[]> {
+  const client = await authorize();
+  return getEmployeeThatHaveABirthday(client)
+}

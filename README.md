@@ -1,1 +1,2 @@
 # hpbd-bot
+yarn dev
